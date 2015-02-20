@@ -27,7 +27,7 @@ module.exports = (function () {
                 this.type = type;
                 this.url = this.ADDRESS;
                 this.uri = '/' + requester + '/' + environment + '/' + controller + '/' + location;
-
+                
         }
 
         SRequest.post = function (requester, environment, controller, location)
@@ -51,6 +51,7 @@ module.exports = (function () {
         }
 
         SRequest.prototype = {
+                
                 ADDRESS: 'localhost',
                 HEADER_DELIMITER: ' ',
                 PROTOCOL: 'http',
@@ -61,6 +62,35 @@ module.exports = (function () {
                         'delete',
                 ],
                 hashFn: 'sha-256',
+                
+                setAuthObject: function (authObject)
+                {
+                        if (authObject.sessionKey)
+                        {
+                                this.authSession = authObject.sessionKey;
+                        }
+                        if (authObject.requester)
+                        {
+                                this.authRequester = authObject.requester;
+                        }
+                        if (authObject.id)
+                        {
+                                this.authID = authObject.id;
+                        }
+                        if (authObject.environment)
+                        {
+                                this.authEnvironment = authObject.environment;
+                        }
+                        if (authObject.idName)
+                        {
+                                this.idName = authObject.idName;
+                        }
+                },
+                
+                setIdName: function (idName)
+                {
+                        this.idNmae = idName;
+                },
                 
                 setParams: function (params)
                 {
@@ -91,7 +121,14 @@ module.exports = (function () {
                 {
                         this.iterateSignature = true;
                         this.authIteration = iteration;
-                        this.iterationSalt = salt;
+                        if (salt)
+                        {
+                                this.iterationSalt = salt;
+                        }
+                        else if (this.authRequester == 'a' && !salt)
+                        {
+                                this.iterationSalt = 'BITao0rndml62u4MHS0gYQT9OpiOHtsYybixo6SK';
+                        }
                 },
                 
                 //if (utility::hash($this->sessionKey . $this->sessionData['validatedRequests'] . static::ITERATION_SALT) != $signature)
@@ -113,9 +150,8 @@ module.exports = (function () {
                                         this.authToken += '?';
                                         this.authToken += querystring.stringify(this.params);
                                 }
-
+                                
                                 signature = this.hmac(this.authSession, this.authToken);
-
                                 if ((this.authRequester == 'a' || this.iterateSignature) && this.authIteration && this.iterationSalt)
                                 {
                                         return this.hash(signature + this.authIteration + this.iterationSalt);
