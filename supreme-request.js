@@ -5,6 +5,7 @@ var BigInteger = require("./biginteger.js"),
         greatjson = require('greatjson'),
         rest = require('./rest.js');
         q = require('q');
+        querystring = require('querystring');
 
 module.exports = (function () {
 
